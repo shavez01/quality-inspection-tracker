@@ -145,3 +145,7 @@ The controller handles HTTP concerns, the service owns business rules, and the r
 ## Notes
 
 The implementation intentionally focuses on the required workflow. The goal is a small application that is easy to run, easy to understand and reliable enough to demonstrate the complete full-stack flow.
+
+## Important
+
+Make sure port 8080 is not already in use. If another application is running on port 8080, close it before starting this application. Then open http://localhost:8080 in your browser.
