@@ -1,0 +1,194 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="Quality Inspection Tracker">
+    <title>Quality Inspection Tracker</title>
+    <link rel="stylesheet" href="/styles.css">
+</head>
+<body>
+<header class="app-header">
+    <div class="page-shell header-inner">
+        <div>
+            <p class="eyebrow">Quality Control</p>
+            <h1>Inspection Tracker</h1>
+        </div>
+        <button class="primary-button header-action" type="button" id="focusFormButton">+ New inspection</button>
+    </div>
+</header>
+
+<main class="page-shell">
+    <section class="summary-section">
+        <div class="section-heading">
+            <div>
+                <p class="eyebrow">Overview</p>
+                <h2>Inspection summary</h2>
+            </div>
+            <button class="text-button" id="refreshButton" type="button">Refresh</button>
+        </div>
+
+        <div class="summary-grid">
+            <article class="summary-card">
+                <span class="summary-label">Critical</span>
+                <div class="summary-values">
+                    <div><strong id="criticalOpen">0</strong><span>Open</span></div>
+                    <div><strong id="criticalResolved">0</strong><span>Resolved</span></div>
+                </div>
+            </article>
+            <article class="summary-card">
+                <span class="summary-label">Major</span>
+                <div class="summary-values">
+                    <div><strong id="majorOpen">0</strong><span>Open</span></div>
+                    <div><strong id="majorResolved">0</strong><span>Resolved</span></div>
+                </div>
+            </article>
+            <article class="summary-card">
+                <span class="summary-label">Minor</span>
+                <div class="summary-values">
+                    <div><strong id="minorOpen">0</strong><span>Open</span></div>
+                    <div><strong id="minorResolved">0</strong><span>Resolved</span></div>
+                </div>
+            </article>
+        </div>
+    </section>
+
+    <section class="content-grid">
+        <section class="panel form-panel" id="newInspection">
+            <div class="section-heading">
+                <div>
+                    <p class="eyebrow">Record</p>
+                    <h2>New inspection</h2>
+                </div>
+            </div>
+
+            <form id="inspectionForm">
+                <label>Inspection date
+                    <input type="date" id="inspectionDate" required>
+                </label>
+
+                <label>Machine / line ID
+                    <input type="text" id="machineLineId" maxlength="100"
+                           placeholder="e.g. LINE-04" required>
+                </label>
+
+                <label>Defect type
+                    <select id="defectType" required>
+                        <option value="">Select defect type</option>
+                        <option value="WEAVE_DEFECT">Weave Defect</option>
+                        <option value="SHADE_VARIATION">Shade Variation</option>
+                        <option value="HOLE_TEAR">Hole/Tear</option>
+                        <option value="COUNT_DEVIATION">Count Deviation</option>
+                        <option value="OTHER">Other</option>
+                    </select>
+                </label>
+
+                <label>Severity
+                    <select id="severity" required>
+                        <option value="">Select severity</option>
+                        <option value="CRITICAL">Critical</option>
+                        <option value="MAJOR">Major</option>
+                        <option value="MINOR">Minor</option>
+                    </select>
+                </label>
+
+                <label>Remarks <span class="optional">(optional)</span>
+                    <textarea id="remarks" maxlength="500" rows="3"
+                              placeholder="Add any useful observation"></textarea>
+                </label>
+
+                <button class="primary-button full-width" type="submit" id="saveButton">Save inspection</button>
+                <p class="form-message" id="formMessage" role="status"></p>
+            </form>
+        </section>
+
+        <section class="panel inspections-panel">
+            <div class="section-heading">
+                <div>
+                    <p class="eyebrow">Records</p>
+                    <h2>Inspections</h2>
+                </div>
+                <span class="record-count" id="recordCount">0 records</span>
+            </div>
+
+            <div class="filters">
+                <label>Severity
+                    <select id="filterSeverity">
+                        <option value="">All</option>
+                        <option value="CRITICAL">Critical</option>
+                        <option value="MAJOR">Major</option>
+                        <option value="MINOR">Minor</option>
+                    </select>
+                </label>
+
+                <label>Status
+                    <select id="filterStatus">
+                        <option value="">All</option>
+                        <option value="OPEN">Open</option>
+                        <option value="RESOLVED">Resolved</option>
+                    </select>
+                </label>
+
+                <label>From
+                    <input type="date" id="filterFrom">
+                </label>
+
+                <label>To
+                    <input type="date" id="filterTo">
+                </label>
+
+                <label>Sort
+                    <select id="sortBy">
+                        <option value="inspectionDate">Inspection date</option>
+                        <option value="severity">Severity</option>
+                        <option value="status">Status</option>
+                        <option value="machineLineId">Machine / line</option>
+                        <option value="createdAt">Created</option>
+                    </select>
+                </label>
+
+                <label>Order
+                    <select id="sortDir">
+                        <option value="desc">Newest first</option>
+                        <option value="asc">Oldest first</option>
+                    </select>
+                </label>
+            </div>
+
+            <div class="list-message" id="listMessage" role="status"></div>
+            <div class="inspection-list" id="inspectionList"></div>
+        </section>
+    </section>
+</main>
+
+<div class="modal-backdrop hidden" id="resolveModal">
+    <div class="modal" role="dialog" aria-modal="true" aria-labelledby="resolveHeading">
+        <div class="modal-header">
+            <div>
+                <p class="eyebrow">Close issue</p>
+                <h2 id="resolveHeading">Resolve inspection</h2>
+            </div>
+            <button class="icon-button" id="closeModalButton" type="button" aria-label="Close">×</button>
+        </div>
+
+        <p class="modal-context" id="resolveContext"></p>
+
+        <form id="resolveForm">
+            <label>Resolution note
+                <textarea id="resolutionNote" maxlength="500" rows="4"
+                          placeholder="What was done to resolve the issue?" required></textarea>
+            </label>
+
+            <div class="modal-actions">
+                <button class="secondary-button" id="cancelResolveButton" type="button">Cancel</button>
+                <button class="primary-button" type="submit" id="resolveButton">Mark resolved</button>
+            </div>
+
+            <p class="form-message" id="resolveMessage" role="status"></p>
+        </form>
+    </div>
+</div>
+
+<script src="/app.js"></script>
+</body>
+</html>
